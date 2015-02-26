@@ -14,6 +14,8 @@ var multiparty = require('multiparty');
 var onFinished = require('on-finished');
 var qs = require('qs');
 var typeis = require('type-is');
+var openrosaRequest = require('openrosa-request-middleware');
+var openrosaRequestMiddleware = openrosaRequest();
 
 /**
  * Multipart:
@@ -37,8 +39,9 @@ var typeis = require('type-is');
 
 exports = module.exports = function(options){
   options = options || {};
+  options.maxContentLength = options.maxContentLength || 10485760;
 
-  return function multipart(req, res, next) {
+  function multipart(req, res, next) {
     if (req._body) return next();
     req.files = req.files || {};
 
@@ -102,4 +105,15 @@ exports = module.exports = function(options){
     
     form.parse(req);
   }
+
+  return function(req, res, next) {
+    // Set correct OpenRosa headers 
+    // see https://bitbucket.org/javarosa/javarosa/wiki/OpenRosaRequest
+    // and https://bitbucket.org/javarosa/javarosa/wiki/FormSubmissionAPI
+    openrosaRequestMiddleware(req, res, function(err) {
+      if (err) next(err);
+      res.set('X-OpenRosa-Accept-Content-Length', options.maxContentLength);
+      multipart(req, res, next);
+    });
+  };
 };
