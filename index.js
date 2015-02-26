@@ -112,7 +112,7 @@ exports = module.exports = function(options){
     // and https://bitbucket.org/javarosa/javarosa/wiki/FormSubmissionAPI
     openrosaRequestMiddleware(req, res, function(err) {
       if (err) next(err);
-      res.set('X-OpenRosa-Accept-Content-Length', options.maxContentLength);
+      res.setHeader('X-OpenRosa-Accept-Content-Length', options.maxContentLength);
       multipart(req, res, next);
     });
   };
