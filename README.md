@@ -14,6 +14,7 @@ Incoming files are stored on disk in the `tmp` folder and must be cleanup up aft
 req.files.forEach(function(file) {
     fs.unlink(file.path, function() {});
 });
+```
 
 ## Usage
 
