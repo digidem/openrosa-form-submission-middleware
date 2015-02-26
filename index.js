@@ -12,8 +12,8 @@
 
 var multiparty = require('multiparty');
 var onFinished = require('on-finished');
-var qs = require('qs');
 var typeis = require('type-is');
+var fs = require('fs');
 var openrosaRequest = require('openrosa-request-middleware');
 var openrosaRequestMiddleware = openrosaRequest();
 
@@ -43,7 +43,8 @@ exports = module.exports = function(options){
 
   function multipart(req, res, next) {
     if (req._body) return next();
-    req.files = req.files || {};
+    req.files = [];
+    req.body = undefined;
 
     // ignore GET
     if ('GET' === req.method || 'HEAD' === req.method) return next();
@@ -56,29 +57,50 @@ exports = module.exports = function(options){
 
     // parse
     var form = new multiparty.Form(options);
-    var files = {};
     var done = false;
-
-    function ondata(name, val, data){
-      if (Array.isArray(data[name])) {
-        data[name].push(val);
-      } else if (data[name]) {
-        data[name] = [data[name], val];
-      } else {
-        data[name] = val;
-      }
-    }
+    var processingXml = false;
+    var wasError = false;
 
     form.on('file', function(name, val){
       val.name = val.originalFilename;
       val.type = val.headers['content-type'] || null;
-      ondata(name, val, files);
+
+      if (name === 'xml_submission_file') {
+        processingXml = true;
+        fs.readFile(val.path, function(err, data) {
+          if (err) onError(err);
+          req.body = data.toString();
+          processingXml = false;
+          if (done && !wasError) next();
+        });
+
+      } else {
+        req.files.push(val);
+      }
     });
 
-    form.on('error', function(err){
+    form.on('error', function(err) {
+      if (done) return;
+      onError(err);
+    });
+
+    form.on('close', function() {
       if (done) return;
 
       done = true;
+
+      // only continue if we have already processed the xml submission file
+      // and attached it to the req.body
+      if (req.body) {
+        next();
+      } else if (!processingXml) {
+        onError(new Error('No xml submission file included in request'));
+      }
+    });
+
+    function onError(err) {
+      done = wasError = true;
+
       err.status = 400;
 
       if (!req.readable) return next(err);
@@ -87,21 +109,7 @@ exports = module.exports = function(options){
       onFinished(req, function(){
         next(err);
       });
-    });
-
-    form.on('close', function() {
-      if (done) return;
-
-      done = true;
-
-      try {
-        req.files = qs.parse(files);
-        next();
-      } catch (err) {
-        err.status = 400;
-        next(err);
-      }
-    });
+    }
     
     form.parse(req);
   }
