@@ -40,7 +40,6 @@ exports = module.exports = function(options){
 
   return function multipart(req, res, next) {
     if (req._body) return next();
-    req.body = req.body || {};
     req.files = req.files || {};
 
     // ignore GET
@@ -54,7 +53,6 @@ exports = module.exports = function(options){
 
     // parse
     var form = new multiparty.Form(options);
-    var data = {};
     var files = {};
     var done = false;
 
@@ -67,10 +65,6 @@ exports = module.exports = function(options){
         data[name] = val;
       }
     }
-
-    form.on('field', function(name, val){
-      ondata(name, val, data);
-    });
 
     form.on('file', function(name, val){
       val.name = val.originalFilename;
@@ -98,7 +92,6 @@ exports = module.exports = function(options){
       done = true;
 
       try {
-        req.body = qs.parse(data);
         req.files = qs.parse(files);
         next();
       } catch (err) {
