@@ -1,30 +1,40 @@
 {
-  "name": "connect-multiparty",
-  "version": "1.2.5",
-  "description": "multipart parsing middleware for connect using multiparty",
+  "name": "openrosa-form-submission-middleware",
+  "version": "1.0.0",
+  "description": "Express middleware for receiving OpenRosa xform submissions",
   "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec --timeout 600 test/*.js"
+  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/andrewrk/connect-multiparty.git"
+    "url": "https://github.com/digidem/openrosa-form-submission-middleware.git"
   },
-  "author": "Andrew Kelley <superjoe30@gmail.com>",
+  "keywords": [
+    "openrosa",
+    "express",
+    "middleware"
+  ],
+  "author": "Gregor MacLennan",
+  "contributors": {
+    "name": "Andrew Kelley",
+    "email": "superjoe30@gmail.com"
+  },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/digidem/openrosa-form-submission-middleware/issues"
+  },
+  "homepage": "https://github.com/digidem/openrosa-form-submission-middleware",
   "dependencies": {
     "multiparty": "~4.0.0",
     "on-finished": "~2.1.0",
-    "qs": "~2.2.4",
+    "openrosa-request-middleware": "^1.0.1",
     "type-is": "~1.5.2"
-  },
-  "scripts": {
-    "test": "mocha --reporter spec --timeout 600 test/*.js"
   },
   "devDependencies": {
     "connect": "3",
     "mocha": "~1.21.3",
     "should": "~4.0.4",
     "supertest": "~0.14.0"
-  },
-  "bugs": {
-    "url": "https://github.com/andrewrk/connect-multiparty/issues"
   }
 }
