@@ -2,95 +2,78 @@
 process.env.NODE_ENV = 'test';
 
 var connect = require('connect');
-var multipart = require('..');
+var formSubmission = require('..');
 var request = require('supertest');
 var should = require('should');
+var fs = require('fs');
+var path = require('path');
 
 var app = connect();
 
-app.use(multipart());
+app.use(formSubmission());
 
 app.use(function(req, res){
   res.end(JSON.stringify(req.body));
 });
 
-describe('multipart()', function(){
+describe('formSubmissionMiddleware()', function(){
   it('should ignore GET', function(done){
     request(app)
     .get('/')
+    .set('X-OpenRosa-Version', '1.0')
     .field('user', 'Tobi')
-    .expect(200, '{}', done);
+    .expect(200, '', done);
+  })
+
+  it('should ignore HEAD', function(done){
+    request(app)
+    .head('/')
+    .set('X-OpenRosa-Version', '1.0')
+    .field('user', 'Tobi')
+    .expect(200, '', done);
   })
 
   describe('with multipart/form-data', function(){
-    it('should populate req.body', function(done){
-      request(app)
-      .post('/')
-      .field('user', 'Tobi')
-      .expect(200, '{"user":"Tobi"}', done);
-    })
 
-    it('should support files', function(done){
+    var xmlFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'xml_submission_file.xml'));
+
+    it('should return xml_submission_file as the form body', function(done){
       var app = connect();
 
       app.use(multipart());
 
       app.use(function(req, res){
-        should(req.body.user).eql({ name: 'Tobi' });
-        req.files.text.path.should.endWith('.txt');
-        req.files.text.constructor.name.should.equal('Object');
-        res.end(req.files.text.originalFilename);
+        req.body.should.eql(xmlFixture.toString());
+        req.files.length.should.eql(0);
+        res.end('{}');
       });
 
       request(app)
       .post('/')
-      .field('user[name]', 'Tobi')
-      .attach('text', new Buffer('some text here'), { filename: 'foo.txt' })
-      .expect(200, 'foo.txt', done);
+      .set('X-OpenRosa-Version', '1.0')
+      .attach('xml_submission_file', xmlFixture, { filename: 'foo.xml' })
+      .expect(200, '{}', done);
     })
     
-    it('should keep extensions', function(done){
+    it('should handle multiple file attachments', function(done){
       var app = connect();
 
       app.use(multipart());
 
       app.use(function(req, res){
-        should(req.body.user).eql({ name: 'Tobi' });
-        req.files.text.path.should.endWith('.txt');
-        req.files.text.constructor.name.should.equal('Object');
-        res.end(req.files.text.originalFilename);
+        req.body.should.eql(xmlFixture.toString());
+        req.files[0].path.should.endWith('.jpg');
+        req.files.length.should.eql(2);
+        res.end(req.files[1].originalFilename);
       });
 
       request(app)
       .post('/')
-      .field('user[name]', 'Tobi')
-      .attach('text', new Buffer('some text here'), { filename: 'foo.txt' })
-      .expect(200, 'foo.txt', done);
-    })
-    
-    it('should work with multiple fields', function(done){
-      request(app)
-      .post('/')
-      .field('user', 'Tobi')
-      .field('age', '1')
-      .expect(200, '{"user":"Tobi","age":"1"}', done);
-    })
-    
-    it('should support nesting', function(done){
-      request(app)
-      .post('/')
-      .field('user[name][first]', 'tobi')
-      .field('user[name][last]', 'holowaychuk')
-      .field('user[age]', '1')
-      .field('species', 'ferret')
-      .expect(200, function(err, res){
-        if (err) return done(err);
-        var obj = JSON.parse(res.text);
-        obj.user.age.should.equal('1');
-        obj.user.name.should.eql({ first: 'tobi', last: 'holowaychuk' });
-        obj.species.should.equal('ferret');
-        done();
-      });
+      .set('X-OpenRosa-Version', '1.0')
+      .attach('xml_submission_file', xmlFixture, { filename: 'foo.xml' })
+      .attach('photo', path.join(__dirname, 'fixtures', 'image.jpg'))
+      .attach('photo', path.join(__dirname, 'fixtures', 'image2.jpg'))
+      .expect(200, 'image2.jpg', done);
     })
 
     it('should support multiple files of the same name', function(done){
@@ -99,14 +82,16 @@ describe('multipart()', function(){
       app.use(multipart());
 
       app.use(function(req, res){
-        req.files.text.should.have.length(2);
-        req.files.text[0].constructor.name.should.equal('Object');
-        req.files.text[1].constructor.name.should.equal('Object');
+        req.files.should.have.length(2);
+        req.files[0].constructor.name.should.equal('Object');
+        req.files[1].constructor.name.should.equal('Object');
         res.end();
       });
 
       request(app)
       .post('/')
+      .set('X-OpenRosa-Version', '1.0')
+      .attach('xml_submission_file', xmlFixture, { filename: 'foo.xml' })
       .attach('text', new Buffer('some text here'), { filename: 'foo.txt' })
       .attach('text', new Buffer('some more text stuff'), { filename: 'bar.txt' })
       .expect(200, done);
@@ -118,14 +103,16 @@ describe('multipart()', function(){
       app.use(multipart());
 
       app.use(function(req, res){
-        Object.keys(req.files.docs).should.have.length(2);
-        req.files.docs.foo.originalFilename.should.equal('foo.txt');
-        req.files.docs.bar.originalFilename.should.equal('bar.txt');
+        req.files.should.have.length(2);
+        req.files[0].originalFilename.should.equal('foo.txt');
+        req.files[1].originalFilename.should.equal('bar.txt');
         res.end();
       });
 
       request(app)
       .post('/')
+      .set('X-OpenRosa-Version', '1.0')
+      .attach('xml_submission_file', xmlFixture, { filename: 'foo.xml' })
       .attach('docs[foo]', new Buffer('some text here'), { filename: 'foo.txt' })
       .attach('docs[bar]', new Buffer('some more text stuff'), { filename: 'bar.txt' })
       .expect(200, done);
@@ -146,7 +133,7 @@ describe('multipart()', function(){
         res.end('bad request');
       });
 
-      var test = request(app).post('/');
+      var test = request(app).post('/').set('X-OpenRosa-Version', '1.0');
       test.set('Content-Type', 'multipart/form-data; boundary=foo');
       test.write('--foo\r\n');
       test.write('Content-filename="foo.txt"\r\n');
@@ -177,7 +164,7 @@ describe('multipart()', function(){
 
       buf.fill('.');
 
-      var test = request(app).post('/');
+      var test = request(app).post('/').set('X-OpenRosa-Version', '1.0');
       test.set('Content-Type', 'multipart/form-data; boundary=foo');
       test.write('--foo\r\n');
       test.write('Content-filename="foo.txt"\r\n');
@@ -193,7 +180,7 @@ describe('multipart()', function(){
       test.expect(400, 'bad request', done);
     })
 
-    it('should default req.files to {}', function(done){
+    it('should default req.files to []', function(done){
       var app = connect();
 
       app.use(multipart());
@@ -204,7 +191,8 @@ describe('multipart()', function(){
 
       request(app)
       .post('/')
-      .expect(200, '{}', done);
+      .set('X-OpenRosa-Version', '1.0')
+      .expect(200, '[]', done);
     })
 
     it('should return 400 on maxFilesSize exceeded', function(done){
@@ -224,9 +212,66 @@ describe('multipart()', function(){
 
       request(app)
       .post('/')
+      .set('X-OpenRosa-Version', '1.0')
       .field('user[name]', 'Tobi')
       .attach('text', new Buffer(str), { filename: 'foo.txt' })
       .expect(400, done);
     })
+
+    it('should return next(err) if no xml_submission_file is included', function(done) {
+      var app = connect();
+
+      app.use(multipart());
+
+      app.use(function(req, res){
+        res.end('whoop');
+      });
+
+      app.use(function(err, req, res, next){
+        err.message.should.equal('No xml submission file included in request');
+        res.statusCode = err.status;
+        res.end('bad request');
+      });
+
+      request(app)
+      .post('/')
+      .set('X-OpenRosa-Version', '1.0')
+      .attach('photo', path.join(__dirname, 'fixtures', 'image.jpg'))
+      .expect(400, 'bad request', done);
+    })
+
+
+    it('should reject requests without X-OpenRosa-Version header', function(done) {
+      var app = connect();
+
+      app.use(multipart());
+
+      app.use(function(req, res){
+        res.end('whoop');
+      });
+
+      request(app)
+      .post('/')
+      .attach('xml_submission_file', xmlFixture, { filename: 'foo.xml' })
+      .expect(400, done);
+    })
+
+    it('should include "X-OpenRosa-Accept-Content-Length" header in response', function(done) {
+      var app = connect();
+
+      app.use(multipart());
+
+      app.use(function(req, res){
+        res.end('whoop');
+      });
+
+      request(app)
+      .post('/')
+      .set('X-OpenRosa-Version', '1.0')
+      .expect('X-OpenRosa-Accept-Content-Length', '10485760')
+      .attach('xml_submission_file', xmlFixture, { filename: 'foo.xml' })
+      .expect(200, done);
+  });
+
   })
 })
