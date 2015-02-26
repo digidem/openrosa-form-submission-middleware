@@ -1,26 +1,33 @@
-# connect-multiparty
+# OpenRosa FormSubmissionAPI middleware
 
-[connect](https://github.com/senchalabs/connect/) middleware for
-[multiparty](https://github.com/andrewrk/node-multiparty/).
+This is based on 
+[connect-multiparty](https://github.com/andrewrk/connect-multiparty) by 
+[Andrew Kelley](https://github.com/andrewrk/). 
 
-I actually recommend against using this module. It's cleaner to use the
-multiparty API directly.
+It is [connect](https://github.com/senchalabs/connect/) middleware for [multiparty](https://github.com/andrewrk/node-multiparty/) to process OpenRosa form submissions from [ODK Collect](https://opendatakit.org/use/collect/) following the [OpenRosa FormSubmissionAPI spec](https://bitbucket.org/javarosa/javarosa/wiki/FormSubmissionAPI).
 
-This middleware will create temp files on your server and never clean them
-up. Thus you should not add this middleware to all routes; only to the ones
-in which you want to accept uploads. And in these endpoints, be sure to
-delete all temp files, even the ones that you don't use.
+The xml form submission is returned as req.body and any attached files are returned as req.files.
+
+Incoming files are stored on disk in the `tmp` folder and must be cleanup up afterwards with something like:
+
+```js
+req.files.forEach(function(file) {
+    fs.unlink(file.path, function() {});
+});
 
 ## Usage
 
 ```js
-var multipart = require('connect-multiparty');
-var multipartMiddleware = multipart();
-app.post('/upload', multipartMiddleware, function(req, resp) {
+var openrosa = require('openrosa-form-submission-middleware');
+var openrosaMiddleware = openrosa();
+
+app.use('/submission', openrosaMiddleware);
+
+app.post('/submission', function(req, res) {
   console.log(req.body, req.files);
   // don't forget to delete all req.files when done
 });
 ```
 
-If you pass options to `multipart()`, they are passed directly into
+If you pass options to `openrosa()`, they are passed directly into
 multiparty.
