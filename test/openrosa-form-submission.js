@@ -1,4 +1,3 @@
-
 process.env.NODE_ENV = 'test';
 
 var connect = require('connect');
@@ -25,11 +24,12 @@ describe('formSubmissionMiddleware()', function(){
     .expect(200, '', done);
   })
 
-  it('should ignore HEAD', function(done){
+  it('should ignore HEAD but still return X-OpenRosa-Version header', function(done){
     request(app)
     .head('/')
     .set('X-OpenRosa-Version', '1.0')
     .field('user', 'Tobi')
+    .expect('X-OpenRosa-Version', '1.0')
     .expect(200, '', done);
   })
 
@@ -40,7 +40,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should return xml_submission_file as the form body', function(done){
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         req.body.should.eql(xmlFixture.toString());
@@ -58,7 +58,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should handle multiple file attachments', function(done){
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         req.body.should.eql(xmlFixture.toString());
@@ -79,7 +79,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should support multiple files of the same name', function(done){
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         req.files.should.have.length(2);
@@ -100,7 +100,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should support nested files', function(done){
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         req.files.should.have.length(2);
@@ -121,7 +121,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should next(err) on multipart failure', function(done){
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         res.end('whoop');
@@ -150,7 +150,7 @@ describe('formSubmissionMiddleware()', function(){
       var app = connect();
       var buf = new Buffer(1024 * 10);
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         res.end('whoop');
@@ -183,7 +183,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should default req.files to []', function(done){
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         res.end(JSON.stringify(req.files));
@@ -199,7 +199,7 @@ describe('formSubmissionMiddleware()', function(){
       var app = connect();
 
       var exp = 9;
-      app.use(multipart({ maxFilesSize: Math.pow(2, exp) }));
+      app.use(formSubmission({ maxFilesSize: Math.pow(2, exp) }));
 
       app.use(function(req, res){
         res.end(JSON.stringify(req.files));
@@ -221,7 +221,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should return next(err) if no xml_submission_file is included', function(done) {
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         res.end('whoop');
@@ -244,7 +244,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should reject requests without X-OpenRosa-Version header', function(done) {
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         res.end('whoop');
@@ -259,7 +259,7 @@ describe('formSubmissionMiddleware()', function(){
     it('should include "X-OpenRosa-Accept-Content-Length" header in response', function(done) {
       var app = connect();
 
-      app.use(multipart());
+      app.use(formSubmission());
 
       app.use(function(req, res){
         res.end('whoop');
