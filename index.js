@@ -70,6 +70,7 @@ exports = module.exports = function(options){
         fs.readFile(val.path, function(err, data) {
           if (err) onError(err);
           req.body = data.toString();
+          fs.unlink(val.path, function() {});
           processingXml = false;
           if (done && !wasError) next();
         });
