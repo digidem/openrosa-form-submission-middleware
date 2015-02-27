@@ -4,7 +4,7 @@ This is based on
 [connect-multiparty](https://github.com/andrewrk/connect-multiparty) by 
 [Andrew Kelley](https://github.com/andrewrk/). 
 
-It is [connect](https://github.com/senchalabs/connect/) middleware for [multiparty](https://github.com/andrewrk/node-multiparty/) to process OpenRosa form submissions from [ODK Collect](https://opendatakit.org/use/collect/) following the [OpenRosa FormSubmissionAPI spec](https://bitbucket.org/javarosa/javarosa/wiki/FormSubmissionAPI).
+It is [express](http://expressjs.com/) middleware for [multiparty](https://github.com/andrewrk/node-multiparty/) to process OpenRosa form submissions from [ODK Collect](https://opendatakit.org/use/collect/) following the [OpenRosa FormSubmissionAPI spec](https://bitbucket.org/javarosa/javarosa/wiki/FormSubmissionAPI).
 
 The xml form submission is returned as req.body and any attached files are returned as req.files.
 

@@ -1,13 +1,13 @@
 process.env.NODE_ENV = 'test';
 
-var connect = require('connect');
+var express = require('express');
 var formSubmission = require('..');
 var request = require('supertest');
 var should = require('should');
 var fs = require('fs');
 var path = require('path');
 
-var app = connect();
+var app = express();
 
 app.use(formSubmission());
 
@@ -38,7 +38,7 @@ describe('formSubmissionMiddleware()', function(){
     var xmlFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'xml_submission_file.xml'));
 
     it('should return xml_submission_file as the form body', function(done){
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 
@@ -56,7 +56,7 @@ describe('formSubmissionMiddleware()', function(){
     })
     
     it('should handle multiple file attachments', function(done){
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 
@@ -77,7 +77,7 @@ describe('formSubmissionMiddleware()', function(){
     })
 
     it('should support multiple files of the same name', function(done){
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 
@@ -98,7 +98,7 @@ describe('formSubmissionMiddleware()', function(){
     })
     
     it('should support nested files', function(done){
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 
@@ -119,7 +119,7 @@ describe('formSubmissionMiddleware()', function(){
     })
     
     it('should next(err) on multipart failure', function(done){
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 
@@ -147,7 +147,7 @@ describe('formSubmissionMiddleware()', function(){
     })
 
     it('should not hang request on failure', function(done){
-      var app = connect();
+      var app = express();
       var buf = new Buffer(1024 * 10);
 
       app.use(formSubmission());
@@ -181,7 +181,7 @@ describe('formSubmissionMiddleware()', function(){
     })
 
     it('should default req.files to []', function(done){
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 
@@ -196,7 +196,7 @@ describe('formSubmissionMiddleware()', function(){
     })
 
     it('should return 400 on maxFilesSize exceeded', function(done){
-      var app = connect();
+      var app = express();
 
       var exp = 9;
       app.use(formSubmission({ maxFilesSize: Math.pow(2, exp) }));
@@ -219,7 +219,7 @@ describe('formSubmissionMiddleware()', function(){
     })
 
     it('should return next(err) if no xml_submission_file is included', function(done) {
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 
@@ -242,7 +242,7 @@ describe('formSubmissionMiddleware()', function(){
 
 
     it('should reject requests without X-OpenRosa-Version header', function(done) {
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 
@@ -257,7 +257,7 @@ describe('formSubmissionMiddleware()', function(){
     })
 
     it('should include "X-OpenRosa-Accept-Content-Length" header in response', function(done) {
-      var app = connect();
+      var app = express();
 
       app.use(formSubmission());
 

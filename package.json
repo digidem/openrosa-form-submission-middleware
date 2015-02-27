@@ -33,7 +33,7 @@
     "type-is": "~1.5.2"
   },
   "devDependencies": {
-    "connect": "3",
+    "express": "^4.0.0",
     "mocha": "~1.21.3",
     "should": "~4.0.4",
     "supertest": "~0.14.0"
