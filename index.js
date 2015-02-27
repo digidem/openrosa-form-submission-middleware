@@ -13,6 +13,7 @@
 var multiparty = require('multiparty');
 var onFinished = require('on-finished');
 var typeis = require('type-is');
+var debug = require('debug')('openrosa-form-submission');
 var fs = require('fs');
 var openrosaRequest = require('openrosa-request-middleware');
 var openrosaRequestMiddleware = openrosaRequest();
@@ -70,7 +71,9 @@ exports = module.exports = function(options){
         fs.readFile(val.path, function(err, data) {
           if (err) onError(err);
           req.body = data.toString();
-          fs.unlink(val.path, function() {});
+          fs.unlink(val.path, function(err) {
+            if (err) debug('Error deleting file %s', file.path);
+          });
           processingXml = false;
           if (done && !wasError) next();
         });
