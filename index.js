@@ -47,8 +47,10 @@ exports = module.exports = function(options){
     req.files = [];
     req.body = undefined;
 
-    // ignore GET
-    if ('GET' === req.method || 'HEAD' === req.method) return next();
+    // Response to HEAD requests with status 204
+    if ('HEAD' === req.method) return res.sendStatus(204);
+    // Ignore all other request methods other than post
+    else if ('POST' !== req.method) return next();
 
     // check Content-Type
     if (!typeis(req, 'multipart/form-data')) return next();

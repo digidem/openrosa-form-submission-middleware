@@ -24,13 +24,13 @@ describe('formSubmissionMiddleware()', function(){
     .expect(200, '', done);
   })
 
-  it('should ignore HEAD but still return X-OpenRosa-Version header', function(done){
+  it('should respond to HEAD with 204 and X-OpenRosa-Version header', function(done){
     request(app)
     .head('/')
     .set('X-OpenRosa-Version', '1.0')
     .field('user', 'Tobi')
     .expect('X-OpenRosa-Version', '1.0')
-    .expect(200, '', done);
+    .expect(204, '', done);
   })
 
   describe('with multipart/form-data', function(){
