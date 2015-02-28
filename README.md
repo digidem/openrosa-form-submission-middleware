@@ -1,5 +1,7 @@
 # OpenRosa FormSubmissionAPI middleware
 
+[![Build Status](https://travis-ci.org/digidem/openrosa-form-submission-middleware.svg?branch=master)](https://travis-ci.org/digidem/openrosa-form-submission-middleware)
+
 This is based on 
 [connect-multiparty](https://github.com/andrewrk/connect-multiparty) by 
 [Andrew Kelley](https://github.com/andrewrk/). 
