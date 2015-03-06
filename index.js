@@ -37,7 +37,7 @@ var openrosaRequestMiddleware = openrosaRequest();
  * @api public
  */
 
-exports = module.exports = function(options){
+module.exports = function(options){
   options = options || {};
   options.maxContentLength = options.maxContentLength || 10485760;
 
@@ -115,12 +115,12 @@ exports = module.exports = function(options){
         next(err);
       });
     }
-    
+
     form.parse(req);
   }
 
   return function(req, res, next) {
-    // Set correct OpenRosa headers 
+    // Set correct OpenRosa headers
     // see https://bitbucket.org/javarosa/javarosa/wiki/OpenRosaRequest
     // and https://bitbucket.org/javarosa/javarosa/wiki/FormSubmissionAPI
     openrosaRequestMiddleware(req, res, function(err) {
