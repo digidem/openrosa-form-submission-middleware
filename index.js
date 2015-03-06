@@ -13,14 +13,13 @@
 var multiparty = require('multiparty');
 var onFinished = require('on-finished');
 var typeis = require('type-is');
-var debug = require('debug')('openrosa-form-submission');
 var fs = require('fs');
 var openrosaRequest = require('openrosa-request-middleware');
 var openrosaRequestMiddleware = openrosaRequest();
 
 /**
  * Multipart:
- * 
+ *
  * Parse multipart/form-data request bodies,
  * providing the parsed object as `req.body`
  * and `req.files`.
@@ -74,7 +73,7 @@ exports = module.exports = function(options){
           if (err) onError(err);
           req.body = data.toString();
           fs.unlink(val.path, function(err) {
-            if (err) debug('Error deleting file %s', file.path);
+            if (err) console.error('Error deleting file %s', val.path);
           });
           processingXml = false;
           if (done && !wasError) next();
