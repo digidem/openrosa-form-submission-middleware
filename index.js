@@ -14,6 +14,7 @@ var multiparty = require('multiparty')
 var onFinished = require('on-finished')
 var typeis = require('type-is')
 var fs = require('fs')
+var debug = require('debug')('openrosa:submission')
 var openrosaRequest = require('openrosa-request-middleware')
 var openrosaRequestMiddleware = openrosaRequest()
 
@@ -57,6 +58,8 @@ module.exports = function (options) {
     // check Content-Type
     if (!typeis(req, 'multipart/form-data')) return next()
 
+    debug('processing form submission')
+
     // flag as parsed
     req._body = true
 
@@ -71,6 +74,7 @@ module.exports = function (options) {
       val.type = val.headers['content-type'] || null
 
       if (name === 'xml_submission_file') {
+        debug('received xml submission file (%s bytes)', val.size)
         processingXml = true
         fs.readFile(val.path, function (err, data) {
           if (err) onError(err)
@@ -78,11 +82,13 @@ module.exports = function (options) {
           fs.unlink(val.path, function (err) {
             if (err) console.error('Error deleting file %s', val.path)
           })
+          debug('processed xml submission')
           processingXml = false
           if (done && !wasError) next()
         })
 
       } else {
+        debug('received attachment %s (%s bytes)', val.name, val.size)
         req.files.push(val)
       }
     })
@@ -107,6 +113,7 @@ module.exports = function (options) {
     })
 
     function onError (err) {
+      debug('form processing error:', err.message)
       done = wasError = true
 
       err.status = 400
