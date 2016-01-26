@@ -2,9 +2,9 @@
 
 [![Build Status](https://travis-ci.org/digidem/openrosa-form-submission-middleware.svg?branch=master)](https://travis-ci.org/digidem/openrosa-form-submission-middleware)
 
-This is based on 
-[connect-multiparty](https://github.com/andrewrk/connect-multiparty) by 
-[Andrew Kelley](https://github.com/andrewrk/). 
+This is based on
+[connect-multiparty](https://github.com/andrewrk/connect-multiparty) by
+[Andrew Kelley](https://github.com/andrewrk/).
 
 It is [express](http://expressjs.com/) middleware for [multiparty](https://github.com/andrewrk/node-multiparty/) to process OpenRosa form submissions from [ODK Collect](https://opendatakit.org/use/collect/) following the [OpenRosa FormSubmissionAPI spec](https://bitbucket.org/javarosa/javarosa/wiki/FormSubmissionAPI).
 
@@ -32,5 +32,14 @@ app.post('/submission', function(req, res) {
 });
 ```
 
-If you pass options to `openrosa()`, they are passed directly into
-multiparty.
+## API
+
+### openrosa(options)
+
+Returns express middleware for receiving and processing OpenRosa form submissions.
+
+* `options.maxContentLength` sets the maximum content length of form submissions (defaults to 10Mb)
+
+* `options.secure` will redirect OpenRosa clients like ODK Collect to use https to send a submission (it does this by responding to the initial HEAD request from the client with a 204 with the Location headers set with the https protocol set)
+
+Other options are passed directly on to multiparty.

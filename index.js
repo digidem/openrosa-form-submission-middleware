@@ -34,6 +34,8 @@ var openrosaRequestMiddleware = openrosaRequest()
  *     app.use(connect.multipart({ uploadDir: path }))
  *
  * @param {Object} options
+ * @param {number} [options.maxContentLength=10485760] Max content length for submissions (defaults to 10Mb)
+ * @param {boolean} [options.secure=false] Redirect form submissions to https (defaults to false)
  * @return {Function}
  * @api public
  */
@@ -41,6 +43,7 @@ var openrosaRequestMiddleware = openrosaRequest()
 module.exports = function (options) {
   options = options || {}
   options.maxContentLength = options.maxContentLength || 10485760
+  options.secure = options.secure || false
 
   function multipart (req, res, next) {
     if (req._body) return next()
@@ -49,6 +52,9 @@ module.exports = function (options) {
 
     if (req.method === 'HEAD') {
       // Response to HEAD requests with status 204
+      var protocol = options.secure ? 'https' : req.protocol
+      var locationUrl = protocol + '://' + req.headers.host + req.originalUrl
+      res.setHeader('Location', locationUrl)
       return res.sendStatus(204)
     } else if (req.method !== 'POST') {
       // Ignore all other request methods other than post
