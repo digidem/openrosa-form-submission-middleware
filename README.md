@@ -1,6 +1,17 @@
 # OpenRosa FormSubmissionAPI middleware
+[![travis][travis-image]][travis-url]
+[![js-standard-style][js-standard-image]][js-standard-url]
+[![npm][npm-image]][npm-url]
+[![downloads][downloads-image]][downloads-url]
 
-[![Build Status](https://travis-ci.org/digidem/openrosa-form-submission-middleware.svg?branch=master)](https://travis-ci.org/digidem/openrosa-form-submission-middleware)
+[travis-image]: https://travis-ci.org/digidem/openrosa-form-submission-middleware.svg?branch=master
+[travis-url]: https://travis-ci.org/digidem/openrosa-form-submission-middleware
+[js-standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg
+[js-standard-url]: http://standardjs.com/
+[npm-image]: https://img.shields.io/npm/v/openrosa-form-submission-middleware.svg?style=flat
+[npm-url]: https://npmjs.org/package/openrosa-form-submission-middleware
+[downloads-image]: https://img.shields.io/npm/dm/openrosa-form-submission-middleware.svg?style=flat
+[downloads-url]: https://npmjs.org/package/openrosa-form-submission-middleware
 
 This is based on
 [connect-multiparty](https://github.com/andrewrk/connect-multiparty) by
