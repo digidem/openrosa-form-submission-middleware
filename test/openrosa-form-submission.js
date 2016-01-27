@@ -35,6 +35,57 @@ describe('formSubmissionMiddleware()', function () {
       .expect(204, '', done)
   })
 
+  it('should include Location header pointing to same url in response to HEAD request', function (done) {
+    var app = express()
+    app.use(function (req, res, next) {
+      req.connection.encrypted = false
+      req.headers.host = 'example.com'
+      next()
+    })
+    app.use(formSubmission())
+
+    request(app)
+      .head('/')
+      .set('X-OpenRosa-Version', '1.0')
+      .expect('X-OpenRosa-Version', '1.0')
+      .expect('Location', 'http://example.com/')
+      .expect(204, '', done)
+  })
+
+  it('encrypted connections should respond with Location header set to https too', function (done) {
+    var app = express()
+    app.use(function (req, res, next) {
+      req.connection.encrypted = true
+      req.headers.host = 'example.com'
+      next()
+    })
+    app.use(formSubmission())
+
+    request(app)
+      .head('/')
+      .set('X-OpenRosa-Version', '1.0')
+      .expect('X-OpenRosa-Version', '1.0')
+      .expect('Location', 'https://example.com/')
+      .expect(204, '', done)
+  })
+
+  it('Setting options.secure should cause head request to redirect to https', function (done) {
+    var app = express()
+    app.use(function (req, res, next) {
+      req.connection.encrypted = false
+      req.headers.host = 'example.com'
+      next()
+    })
+    app.use(formSubmission({secure: true}))
+
+    request(app)
+      .head('/')
+      .set('X-OpenRosa-Version', '1.0')
+      .expect('X-OpenRosa-Version', '1.0')
+      .expect('Location', 'https://example.com/')
+      .expect(204, '', done)
+  })
+
   describe('with multipart/form-data', function () {
     var xmlFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'xml_submission_file.xml'))
 
