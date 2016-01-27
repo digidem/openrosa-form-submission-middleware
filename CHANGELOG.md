@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.1.0]
 ### Fixed
 - Set location header on response to HEAD request fixes #1
 
@@ -34,7 +36,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/digidem/openrosa-form-submission-middleware/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/digidem/openrosa-form-submission-middleware/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/digidem/openrosa-form-submission-middleware/compare/v1.0.4...v1.1.0
 [1.0.4]: https://github.com/digidem/openrosa-form-submission-middleware/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/digidem/openrosa-form-submission-middleware/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/digidem/openrosa-form-submission-middleware/compare/v1.0.1...v1.0.2

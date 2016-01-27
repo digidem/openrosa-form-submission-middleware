@@ -1,6 +1,6 @@
 {
   "name": "openrosa-form-submission-middleware",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Express middleware for receiving OpenRosa xform submissions",
   "main": "index.js",
   "scripts": {
